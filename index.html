@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花火の歴史クイズゲーム - 完全版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', 'Yu Gothic Medium', '游ゴシック Medium', YuGothic, '游ゴシック体', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 25%, #8e44ad 50%, #9b59b6 75%, #1a252f 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 700px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            text-align: center;
+            padding: 35px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 20%, transparent 20%);
+            background-size: 20px 20px;
+            animation: sparkle 3s linear infinite;
+        }
+
+        @keyframes sparkle {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(20px) translateY(20px); }
+        }
+
+        .header h1 {
+            font-size: 2.4em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .version-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .content {
+            padding: 45px;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .start-screen p {
+            color: #555;
+            margin-bottom: 35px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .difficulty-selector {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #6a11cb;
+        }
+
+        .difficulty-selector h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .difficulty-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .difficulty-option:hover {
+            border-color: #6a11cb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106,17,203,0.2);
+        }
+
+        .difficulty-option.selected {
+            background: #6a11cb;
+            color: white;
+            border-color: #6a11cb;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(106,17,203,0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(106,17,203,0.4);
+        }
+
+        .quiz-screen {
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .timer {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .question {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border-left: 6px solid #6a11cb;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question h3 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 18px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(106,17,203,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .option:hover {
+            border-color: #6a11cb;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .explanation {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #2196f3;
+            display: none;
+            box-shadow: 0 5px 15px rgba(33,150,243,0.1);
+        }
+
+        .explanation h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .explanation p {
+            color: #424242;
+            line-height: 1.7;
+            font-size: 1.05em;
+        }
+
+        .blog-link {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .blog-link:hover {
+            color: #0d47a1;
+            text-decoration: underline;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1em;
+            z-index: 2;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            display: none;
+            box-shadow: 0 5px 15px rgba(23,162,184,0.3);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(23,162,184,0.4);
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+
+        .score {
+            font-size: 3.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 25px 0;
+        }
+
+        .score-message {
+            font-size: 1.4em;
+            color: #555;
+            margin-bottom: 35px;
+            line-height: 1.5;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #6a11cb;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 12px;
+            box-shadow: 0 8px 20px rgba(106,17,203,0.3);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(106,17,203,0.4);
+        }
+
+        .blog-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 12px;
+            box-shadow: 0 8px 20px rgba(23,162,184,0.3);
+        }
+
+        .blog-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(23,162,184,0.4);
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255,193,7,0.3);
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255,193,7,0.4);
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .achievements {
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 5px solid #28a745;
+        }
+
+        .achievements h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .achievement-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .achievement {
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 25px;
+            }
+            
+            .option {
+                padding: 20px;
+                font-size: 1em;
+            }
+
+            .difficulty-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="version-badge">完全版</div>
+            <div class="score-display" id="currentScore" style="display: none;">0/0</div>
+            <h1>🎆 花火の歴史クイズ 🎆</h1>
+            <p>明治時代の花火技術を学ぼう</p>
+        </div>
+
+        <div class="content">
+            <!-- スタート画面 -->
+            <div class="start-screen">
+                <h2>花火の歴史マニアが作った本格クイズ</h2>
+                <p>30冊以上の書籍から調べた花火の歴史を、クイズで楽しく学べます。<br>
+                明治時代の『技藝百科全書』から厳選した問題にチャレンジしてみましょう！</p>
+                
+                <div class="difficulty-selector">
+                    <h3>難易度を選択してください</h3>
+                    <div class="difficulty-options">
+                        <div class="difficulty-option selected" data-difficulty="normal">
+                            <strong>標準コース</strong><br>
+                            <small>10問・制限時間なし</small>
+                        </div>
+                        <div class="difficulty-option" data-difficulty="hard">
+                            <strong>上級コース</strong><br>
+                            <small>15問・制限時間30秒</small>
+                        </div>
+                        <div class="difficulty-option" data-difficulty="expert">
+                            <strong>専門家コース</strong><br>
+                            <small>20問・制限時間20秒</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="start-btn" onclick="startQuiz()">クイズを始める</button>
+            </div>
+
+            <!-- クイズ画面 -->
+            <div class="quiz-screen">
+                <div class="quiz-header">
+                    <div class="question-counter">
+                        <span id="questionNumber">1</span> / <span id="totalQuestions">10</span>
+                    </div>
+                    <div class="timer" id="timer" style="display: none;">
+                        ⏱️ <span id="timeLeft">30</span>秒
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+
+                <div class="question">
+                    <h3 id="questionText"></h3>
+                    <button class="hint-btn" id="hintBtn" onclick="showHint()">💡 ヒント</button>
+                    <div class="hint" id="hint"></div>
+                </div>
+
+                <div class="options" id="optionsContainer"></div>
+
+                <div class="explanation" id="explanation">
+                    <h4>解説</h4>
+                    <p id="explanationText"></p>
+                </div>
+
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次の問題へ</button>
+            </div>
+
+            <!-- 結果画面 -->
+            <div class="result-screen">
+                <h2>お疲れ様でした！</h2>
+                <div class="score" id="finalScore"></div>
+                <div class="score-message" id="scoreMessage"></div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="correctAnswers">0</div>
+                        <div class="stat-label">正解数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTime">0</div>
+                        <div class="stat-label">経過時間</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="hintsUsed">0</div>
+                        <div class="stat-label">ヒント使用</div>
+                    </div>
+                </div>
+
+                <div class="achievements" id="achievementsContainer" style="display: none;">
+                    <h4>🏆 達成した称号</h4>
+                    <div class="achievement-list" id="achievementList"></div>
+                </div>
+
+                <p>花火の歴史についてもっと詳しく知りたい方は、<br>ぜひブログもご覧ください！</p>
+                <button class="restart-btn" onclick="restartQuiz()">もう一度挑戦</button>
+                <button class="blog-btn" onclick="window.open('https://hanabi-history.com/', '_blank')">ブログを見る</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "「綱火」の特徴として正しいものは？",
+                options: [
+                    "空中で大きな花を咲かせる",
+                    "綱に火を走らせる仕掛け花火",
+                    "水中で光る花火",
+                    "音だけを出す花火"
+                ],
+                correct: 1,
+                explanation: "綱火は、綱に火を走らせる仕掛け花火で、点火と同時に竹筒に詰めた火薬が燃焼し、まるで龍星のように火が横に翔ける演出が特徴です。",
+                blogLink: "https://hanabi-history.com/meiji-tunabinokoto/",
+                hint: "名前に「綱」という漢字が入っているのがヒントです。",
+                difficulty: "normal"
+            },
+            {
+                question: "「仕掛け燈火」とは何ですか？",
+                options: [
+                    "人形や旗に火を走らせる装飾花火",
+                    "空中で回転する花火",
+                    "地面に置く小型の花火",
+                    "夜空に文字を描く花火"
+                ],
+                correct: 0,
+                explanation: "仕掛け燈火とは、人形や旗などの造形物に火を走らせ、紙玉と吹き出しで演出する装飾花火のことです。明治の資料には「鹿児島戦争の出陣風景を模した」例が紹介されています。",
+                blogLink: "https://hanabi-history.com/maiji-sikakeennkanituite/",
+                hint: "「仕掛け」という言葉から、何かを作って飾る花火だと推測できます。",
+                difficulty: "normal"
+            },
+            {
+                question: "「錐揉み」とは花火製作のどの工程ですか？",
+                options: [
+                    "火薬を混ぜる作業",
+                    "竹筒を作る作業",
+                    "流星に対する最終工程",
+                    "花火玉を包む作業"
+                ],
+                        correct: 2,
+                explanation: "火薬を詰め終えた流星に対して行う最終工程が「錐揉み」です。これにより、火の通り道の安定性が決まります。",
+                blogLink: "https://hanabi-history.com/maiji-kirimominotyuui/",
+                hint: "「錐」は先の尖った道具です。何かに穴を開ける最終作業を想像してみてください。",
+                difficulty: "hard"
+            },
+            {
+                question: "花火の火薬「九・二・一剤」とは何の配合比率ですか？",
+                options: [
+                    "硝石・硫黄・木炭",
+                    "鉄粉・硝石・硫黄",
+                    "硝石・木炭・鉄粉",
+                    "硫黄・木炭・硝石"
+                ],
+                correct: 0,
+                explanation: "九・二・一剤は硝石9、硫黄2、木炭1の配合比率で作られる火薬です。この配合により花火の美しい燃焼が実現されます。",
+                blogLink: "https://hanabi-history.com/meiji-ennsyoutumekomikokoroe/",
+                hint: "古典的な火薬の基本成分は3つです。比率は9:2:1です。",
+                difficulty: "normal"
+            },
+            {
+                question: "「龍星」で重要な「竹筒と尾」の関係は？",
+                options: [
+                    "色を決める関係",
+                    "音を決める関係",
+                    "一直線に昇るためのバランス調整",
+                    "火薬の量を決める関係"
+                ],
+                correct: 2,
+                explanation: "龍星は、一直線に空へ昇るよう設計された大型のロケット花火。そのためには「竹筒と尾」のバランス調整が欠かせません。",
+                blogLink: "https://hanabi-history.com/meiji-taketututootonokannkei/",
+                hint: "ロケットが真っ直ぐ飛ぶために必要なものを考えてみてください。",
+                difficulty: "normal"
+            },
+            {
+                question: "「打粉」とは何のことですか？",
+                options: [
+                    "花火の色を出す粉",
+                    "花火を打上げるための火薬",
+                    "花火玉を包む粉",
+                    "音を出すための粉"
+                ],
+                correct: 1,
+                explanation: "打粉とは花火を打上げるための打上火薬のことで、花火玉の美しい開花には適切な分量が重要です。量が適切でないと失敗の原因になりかねません。",
+                blogLink: "https://hanabi-history.com/meiji-utikobunnryou/",
+                hint: "「打」という字から、花火を何するための粉か想像できます。",
+                difficulty: "normal"
+            },
+            {
+                question: "「雷丸」の目的は何ですか？",
+                options: [
+                    "美しい色を出すため",
+                    "轟音を出すため",
+                    "長時間燃焼させるため",
+                    "高く上がるため"
+                ],
+                correct: 1,
+                explanation: "雷丸は轟音を出すため非常に重要ですが、大きくなるほど筒や玉自体の危険性が増します。安全かつ美しい音を出すためのノウハウが必要です。",
+                blogLink: "https://hanabi-history.com/meiji-raigannsikomikokoroe/",
+                hint: "「雷」という字が入っています。雷といえば…？",
+                difficulty: "normal"
+            },
+            {
+                question: "花火の失敗「黒玉」とは何ですか？",
+                options: [
+                    "黒い色しか出ない花火",
+                    "全く開かない花火",
+                    "音が出ない花火",
+                    "低く上がる花火"
+                ],
+                correct: 1,
+                explanation: "明治22年の『技藝百科全書』では、花火がうまく開かない原因を「黒玉」「直開き」「出損じ」に分類しています。黒玉は全く開かない失敗を指します。",
+                blogLink: "https://hanabi-history.com/meiji-kurodama/",
+                hint: "失敗した花火は光らず、夜空では黒く見えます。",
+                difficulty: "hard"
+            },
+            {
+                question: "「早揚法」の特徴は何ですか？",
+                options: [
+                    "高く上がる方法",
+                    "美しく開く方法",
+                    "連続して速く打上げる方法",
+                    "音を大きくする方法"
+                ],
+                correct: 2,
+                explanation: "早揚法は、通常の花火より打上までの手数を減らした打上方法です。これにより、通常の打上よりも数倍速く、連続して玉を揚げることができます。",
+                blogLink: "https://hanabi-history.com/meiji-hayaagehou/",
+                hint: "「早」という字がポイント。速さに関する方法です。",
+                difficulty: "hard"
+            },
+            {
+                question: "花火玉の「底張り」の目的は何ですか？",
+                options: [
+                    "色を美しくするため",
+                    "安全な打ち上げのため",
+                    "音を大きくするため",
+                    "高く上がるため"
+                ],
+                correct: 1,
+                explanation: "花火玉の完成度を左右する最終工程が「底張り（留め張り）」です。長玉と丸玉で異なる処理が求められるこの作業は、安全な打ち上げのために欠かせません。",
+                blogLink: "https://hanabi-history.com/meiji-sikomitamasokoharinarabinisiagehou/",
+                hint: "花火玉の最終工程です。安全性に関わる重要な作業です。",
+                difficulty: "normal"
+            },
+            // 追加問題（上級・専門家コース用）
+            {
+                question: "明治時代の花火製作で「星」とは何を指しますか？",
+                options: [
+                    "夜空に輝く本物の星",
+                    "花火の色火を出す火薬の玉",
+                    "花火師の階級",
+                    "花火の打上げ角度"
+                ],
+                correct: 1,
+                explanation: "「星」は花火の色火を出す火薬の小さな玉のことで、これが燃焼することで美しい色彩を夜空に描きます。星の配合により様々な色が作られます。",
+                blogLink: "https://hanabi-history.com/meiji-hosi/",
+                hint: "花火の美しい色を出すための小さな部品です。",
+                difficulty: "hard"
+            },
+            {
+                question: "「筒抜け」という花火の失敗は何が原因ですか？",
+                options: [
+                    "火薬の量が多すぎる",
+                    "竹筒の底が抜けてしまう",
+                    "点火のタイミングが悪い",
+                    "湿気で火薬が湿る"
+                ],
+                correct: 1,
+                explanation: "筒抜けは竹筒の底が抜けてしまい、花火玉が正常に打ち上がらない重大な失敗です。筒の強度不足や火薬の詰め方に問題があると起こります。",
+                blogLink: "https://hanabi-history.com/meiji-tutunuke/",
+                hint: "名前そのものがヒントです。「筒」の「抜け」る現象です。",
+                difficulty: "expert"
+            },
+            {
+                question: "江戸時代から明治時代の花火で「鼠花火」とは？",
+                options: [
+                    "地面を走り回る小型花火",
+                    "ネズミの形をした花火",
+                    "音のしない静かな花火",
+                    "昼間に楽しむ花火"
+                ],
+                correct: 0,
+                explanation: "鼠花火は地面を不規則に走り回る小型の花火で、その動きがネズミのように見えることから名付けられました。子どもたちに人気の花火でした。",
+                blogLink: "https://hanabi-history.com/meiji-nezumihanabi/",
+                hint: "ネズミの動きを想像してみてください。",
+                difficulty: "hard"
+            },
+            {
+                question: "明治時代の花火技術書で「薬種」とは何を指しますか？",
+                options: [
+                    "花火の治療薬",
+                    "火薬の原料となる化学物質",
+                    "花火師の道具",
+                    "花火の保存方法"
+                ],
+                correct: 1,
+                explanation: "薬種とは火薬の原料となる化学物質のことで、硝石、硫黄、木炭などが基本的な薬種として使われていました。",
+                blogLink: "https://hanabi-history.com/meiji-yakusyu/",
+                hint: "「薬」という字から、何かの材料・原料を想像できます。",
+                difficulty: "expert"
+            },
+            {
+                question: "「空中開花」を美しくするための重要な要素は？",
+                options: [
+                    "打上げの高さだけ",
+                    "火薬の量だけ",
+                    "開花のタイミングと星の配置",
+                    "天候の条件だけ"
+                ],
+                correct: 2,
+                explanation: "空中開花の美しさは、適切な高さでの開花タイミングと、星（色火）の均等な配置が重要です。これにより完璧な球状の花火が完成します。",
+                blogLink: "https://hanabi-history.com/meiji-kuutyuukaika/",
+                hint: "美しい花火は「いつ」「どのように」開くかが重要です。",
+                difficulty: "expert"
+            },
+            {
+                question: "明治時代の花火で「追込み」とは何の技法ですか？",
+                options: [
+                    "連続して花火を打ち上げる技法",
+                    "花火玉に火薬を詰める技法",
+                    "観客を会場に案内する方法",
+                    "花火の後片付けの方法"
+                ],
+                correct: 1,
+                explanation: "追込みとは花火玉に火薬や星を詰め込む技法で、花火の完成度を左右する重要な工程です。均等に詰めることで美しい開花が実現されます。",
+                blogLink: "https://hanabi-history.com/meiji-oikomi/",
+                hint: "「込み」という字から、何かを中に入れる作業だと分かります。",
+                difficulty: "expert"
+            },
+            {
+                question: "「手筒花火」の特徴として正しいものは？",
+                options: [
+                    "機械で自動的に打ち上げる",
+                    "人が手で持って噴出させる",
+                    "水中で燃焼させる",
+                    "室内で楽しむ小型花火"
+                ],
+                correct: 1,
+                explanation: "手筒花火は人が直接手で持って、筒から火花を噴出させる伝統的な花火です。特に愛知県の豊橋で有名な伝統芸能です。",
+                blogLink: "https://hanabi-history.com/meiji-tetutsu/",
+                hint: "「手筒」という名前が全てを表しています。",
+                difficulty: "hard"
+            },
+            {
+                question: "江戸時代の花火師「玉屋」と「鍵屋」の関係は？",
+                options: [
+                    "全く関係のない別々の店",
+                    "玉屋は鍵屋から独立した",
+                    "鍵屋は玉屋から独立した",
+                    "同じ人が経営していた"
+                ],
+                correct: 1,
+                explanation: "玉屋は鍵屋の手代だった清七が独立して始めた花火店です。両者は江戸の花火界で競い合い、「たまや〜」「かぎや〜」の掛け声で有名になりました。",
+                blogLink: "https://hanabi-history.com/edo-tamaya-kagiya/",
+                hint: "江戸時代の商家では、手代が独立して新しい店を開くことがよくありました。",
+                difficulty: "expert"
+            },
+            {
+                question: "明治時代の花火で「乱玉」とは何ですか？",
+                options: [
+                    "規則正しく打ち上げる花火",
+                    "不規則に連続して打ち上げる花火",
+                    "一度に大量に打ち上げる花火",
+                    "失敗して壊れた花火"
+                ],
+                correct: 1,
+                explanation: "乱玉とは不規則なタイミングで連続して打ち上げる花火の演出方法です。観客に予測不可能な驚きと興奮を与える技法として用いられました。",
+                blogLink: "https://hanabi-history.com/meiji-randama/",
+                hint: "「乱」という字から、規則的ではない様子を想像できます。",
+                difficulty: "expert"
+            }
+        ];
+
+        let currentQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let difficulty = 'normal';
+        let timeLeft = 0;
+        let timer = null;
+        let startTime = 0;
+        let hintsUsed = 0;
+        let achievements = [];
+
+        function selectDifficulty() {
+            const options = document.querySelectorAll('.difficulty-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    difficulty = option.dataset.difficulty;
+                });
+            });
+        }
+
+        function startQuiz() {
+            // 難易度に応じて問題を選択
+            let questionCount = 10;
+            let timeLimit = 0;
+            
+            switch(difficulty) {
+                case 'normal':
+                    currentQuestions = allQuestions.filter(q => q.difficulty === 'normal').slice(0, 10);
+                    timeLimit = 0;
+                    break;
+                case 'hard':
+                    currentQuestions = allQuestions.filter(q => q.difficulty === 'normal' || q.difficulty === 'hard').slice(0, 15);
+                    timeLimit = 30;
+                    questionCount = 15;
+                    break;
+                case 'expert':
+                    currentQuestions = allQuestions.slice(0, 20);
+                    timeLimit = 20;
+                    questionCount = 20;
+                    break;
+            }
+            
+            // 問題をシャッフル
+            currentQuestions = currentQuestions.sort(() => Math.random() - 0.5);
+            
+            document.getElementById('totalQuestions').textContent = questionCount;
+            document.querySelector('.start-screen').style.display = 'none';
+            document.querySelector('.quiz-screen').style.display = 'block';
+            document.getElementById('currentScore').style.display = 'block';
+            
+            if (timeLimit > 0) {
+                document.getElementById('timer').style.display = 'block';
+                timeLeft = timeLimit;
+            }
+            
+            startTime = Date.now();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= currentQuestions.length) {
+                showResult();
+                return;
+            }
+
+            const question = currentQuestions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('currentScore').textContent = `${score}/${currentQuestion}`;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('hint').style.display = 'none';
+            document.getElementById('hintBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').disabled = false;
+            answered = false;
+
+            // プログレスバーの更新
+            const progress = ((currentQuestion + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // タイマー開始
+            if (timeLeft > 0) {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function timeUp() {
+            if (answered) return;
+            
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            const question = currentQuestions[currentQuestion];
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                }
+            });
+
+            // 時間切れメッセージ
+            document.getElementById('explanationText').innerHTML = 
+                '⏰ 時間切れです！<br><br>' + question.explanation + '<br><br>' +
+                '<a href="' + question.blogLink + '" target="_blank" class="blog-link">→ この記事をブログで読む</a>';
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        function selectOption(selectedIndex) {
+            if (answered) return;
+            
+            if (timer) clearInterval(timer);
+            answered = true;
+            const question = currentQuestions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === question.correct) {
+                score++;
+            }
+
+            // 解説を表示
+            document.getElementById('explanationText').innerHTML = 
+                question.explanation + '<br><br>' +
+                '<a href="' + question.blogLink + '" target="_blank" class="blog-link">→ この記事をブログで読む</a>';
+            document.getElementById('explanation').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('hintBtn').style.display = 'none';
+        }
+
+        function showHint() {
+            const question = currentQuestions[currentQuestion];
+            document.getElementById('hint').innerHTML = question.hint;
+            document.getElementById('hint').style.display = 'block';
+            document.getElementById('hintBtn').disabled = true;
+            hintsUsed++;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            // 難易度に応じてタイマーをリセット
+            if (difficulty === 'hard') {
+                timeLeft = 30;
+            } else if (difficulty === 'expert') {
+                timeLeft = 20;
+            }
+            
+            showQuestion();
+        }
+
+        function showResult() {
+            if (timer) clearInterval(timer);
+            
+            document.querySelector('.quiz-screen').style.display = 'none';
+            document.querySelector('.result-screen').style.display = 'block';
+            document.getElementById('currentScore').style.display = 'none';
+            
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            const totalTime = Math.round((Date.now() - startTime) / 1000);
+            
+            document.getElementById('finalScore').textContent = score + ' / ' + currentQuestions.length;
+            document.getElementById('correctAnswers').textContent = score;
+            document.getElementById('totalTime').textContent = totalTime + '秒';
+            document.getElementById('hintsUsed').textContent = hintsUsed;
+            
+            // 達成度に応じたメッセージ
+            let message = '';
+            if (percentage === 100) {
+                message = '🎉 完璧です！花火の歴史博士ですね！';
+                achievements.push('完璧主義者');
+            } else if (percentage >= 90) {
+                message = '🎆 素晴らしい！花火の歴史をよく知っていますね！';
+                achievements.push('花火マスター');
+            } else if (percentage >= 80) {
+                message = '✨ 良い成績です！花火の歴史に詳しいですね！';
+                achievements.push('花火愛好家');
+            } else if (percentage >= 60) {
+                message = '🌟 まずまずの成績です！もう少し勉強してみましょう！';
+            } else {
+                message = '💫 まだまだ学ぶことがたくさんありますね！';
+            }
+            
+            // 特別な達成条件
+            if (hintsUsed === 0) {
+                achievements.push('無援助クリア');
+            }
+            if (difficulty === 'expert' && percentage >= 80) {
+                achievements.push('専門家級');
+            }
+            if (totalTime < 60 && currentQuestions.length >= 10) {
+                achievements.push('スピードマスター');
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+            
+            // 達成した称号を表示
+            if (achievements.length > 0) {
+                document.getElementById('achievementsContainer').style.display = 'block';
+                const achievementList = document.getElementById('achievementList');
+                achievementList.innerHTML = '';
+                achievements.forEach(achievement => {
+                    const badge = document.createElement('span');
+                    badge.className = 'achievement';
+                    badge.textContent = achievement;
+                    achievementList.appendChild(badge);
+                });
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            hintsUsed = 0;
+            achievements = [];
+            if (timer) clearInterval(timer);
+            
+            document.querySelector('.result-screen').style.display = 'none';
+            document.querySelector('.start-screen').style.display = 'block';
+            document.getElementById('currentScore').style.display = 'none';
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            selectDifficulty();
+        });
+    </script>
+</body>
+</html>
