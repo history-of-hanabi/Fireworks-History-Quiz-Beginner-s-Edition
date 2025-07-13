@@ -1,1 +1,1 @@
-# Fireworks-History-Quiz-Beginner-s-Edition
+# Fireworks-History-Quiz
